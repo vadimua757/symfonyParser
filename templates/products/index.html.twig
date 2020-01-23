@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Products{% endblock %}
+
+{% block body %}
+    <table id="products" class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Picture
+            </th>
+            <th>
+                Price
+            </th>
+            <th>
+                Old price
+            </th>
+            <th>
+                Date add
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for product in products %}
+            <tr>
+                <td>
+                    <a href="{{ product.url }}" target="_blank">
+                        {{ product.name }}
+                    </a>
+                </td>
+                <td>
+                    {{ product.picture }}
+                </td>
+                <td>
+                    {% if product.price > product.price_old %}
+                        <span style="color:red">{{ product.price }}&nbsp;{{ product.currency }}</span>
+                    {% else %}
+                        <span style="color:green">{{ product.price }}&nbsp;{{ product.currency }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ product.price_old }}&nbsp;{{ product.currency }}
+                </td>
+                <td>
+                    {{ product.createdAt|date("m-d-Y") }}
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    <!-- Insert this at the end of your body element, but before the closing tag -->
+{#    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>#}
+
+{% endblock %}
+ {% block javascripts %}
+     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.20/sorting/any-number.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.20/sorting/date-dd-MMM-yyyy.js"></script>
+     <script>
+         $('#products').DataTable( {
+             "language": {
+                 "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+             },
+             columnDefs: [
+                 { type: 'any-number', targets : [ 2, 3 ] },
+                 { type: 'date-dd-mmm-yyyy', targets: 4 }
+             ]
+         } );
+     </script>
+ {% endblock %}
+

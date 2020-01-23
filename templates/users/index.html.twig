@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Products{% endblock %}
+
+{% block body %}
+    <table id="users" class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>
+                E-mail
+            </th>
+            <th>
+                Roles
+            </th>
+            <th>
+                Enabled?
+            </th>
+            <th>
+                del
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in users %}
+            <tr>
+                <td>
+                    {{ user.email }}
+                </td>
+                <td>
+                    {% for role in user.roles %}
+                        {{ role }}
+                    {% endfor %}
+                </td>
+                <td>
+                    {{ user.enabled }}
+                </td>
+                <td>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="...{{ user.id }}">Delete</a>
+                    {% endif %}
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endblock %}
+{% block javascripts %}
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>
+    <script>
+        $('#users').DataTable( {
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+            }
+        } );
+    </script>
+{% endblock %}
