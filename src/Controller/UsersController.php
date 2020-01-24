@@ -58,6 +58,7 @@ class UsersController extends AbstractController
             $em->remove($delete);
             $em->flush();
         }
-        return $this->redirectToRoute('products');
+        $this->addFlash('success', 'Deleted!');
+        return $this->redirectToRoute('users');
     }
 }
