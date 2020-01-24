@@ -56,7 +56,7 @@ class RegisterController extends AbstractController
             $em->persist($user);
             $em->flush();
             $userRegisteredEvent = new RegisteredUserEvent($user);
-            $eventDispatcher->dispatch((object)RegisteredUserEvent::NAME, $userRegisteredEvent);
+            $eventDispatcher->dispatch($userRegisteredEvent, RegisteredUserEvent::NAME);
 
         }
 
