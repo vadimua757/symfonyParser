@@ -22,9 +22,11 @@
                         </button> <a class="navbar-brand" href="{{ app.request.schemeAndHttpHost }}">Home</a>
                         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                             <ul class="navbar-nav">
+                                {% if is_granted('ROLE_USER') %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ app.request.schemeAndHttpHost }}{{ path('products') }}">Products<span class="sr-only">(current)</span></a>
                                 </li>
+                                {% endif %}
                                 {% if is_granted('ROLE_ADMIN') %}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ app.request.schemeAndHttpHost }}{{ path('users') }}">Users<span class="sr-only">(current)</span></a>

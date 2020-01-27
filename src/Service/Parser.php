@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Clue\React\Buzz\Browser;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DomCrawler\Crawler;
 
 class Parser
@@ -25,34 +26,45 @@ class Parser
     public function parse($url)
     {
             $this->client->get($url)->then(
-                function (\Psr\Http\Message\ResponseInterface $response) {
-                    $this->parsed[] = $this->extractFromHtml((string) $response->getBody());
+                function (ResponseInterface $response) use ($url) {
+                    $this->parsed = $this->extractFromHtml((string) $response->getBody(), $url);
                 });
     }
 
-    public function extractFromHtml($html)
+    public function extractFromHtml($html, $url)
     {
         $crawler = new Crawler($html);
 
-        $title = trim($crawler->filter('h1')->text());
-        $price = $crawler->filter('[itemprop="price"]')->extract(['content']);
-//        $description = trim($crawler->filter('[itemprop="price"]')->text());
+        $sites =
+            [
+                'rozetka.com.ua',
+                'foxtrot.com.ua',
+            ];
 
-//        $crawler->filter('#titleDetails .txt-block')->each(
-//            function (Crawler $crawler) {
-//                foreach ($crawler->children() as $node) {
-//                    $node->parentNode->removeChild($node);
-//                }
-//            }
-//        );
-
-//        $releaseDate = trim($crawler->filter('#titleDetails .txt-block')->eq(2)->text());
+        foreach ($sites as $site) {
+            if(strpos($url, $site) !== false){
+                switch ($site):
+                    case 'rozetka.com.ua':
+                            $title = trim($crawler->filter('h1')->text());
+                            $picture = $crawler->filter('.product-photo__large-inner img')->eq(0)->attr('src');
+                            $price = (int) filter_var($crawler->filter('.product-prices__big')->text(), FILTER_SANITIZE_NUMBER_INT);
+                            $currency = $crawler->filter('.product-prices__symbol')->text();
+                        break;
+                    case 'foxtrot.com.ua':
+                            $title = $crawler->filter('meta[itemprop="name"]')->first()->attr('content');
+                            $picture = $crawler->filter('meta[itemprop="image"]')->first()->attr('content');
+                            $price = (int) filter_var($crawler->filter('.price__relevant')->children('.numb')->text(), FILTER_SANITIZE_NUMBER_INT);
+                            $currency = $crawler->filter('.price__relevant')->children('.currency')->text();
+                        break;
+                endswitch;
+            }
+        }
 
         return [
-            'title'        => $title,
-            'price'       => $price,
-//            'description'  => $description,
-//            'release_date' => $releaseDate,
+            'title'     => $title,
+            'price'     => $price,
+            'picture'   => $picture,
+            'currency'  => $currency,
         ];
     }
 

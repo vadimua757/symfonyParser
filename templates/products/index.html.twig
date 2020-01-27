@@ -21,6 +21,11 @@
             <th>
                 Date add
             </th>
+            {% if is_granted('ROLE_ADMIN') %}
+            <th>
+                User
+            </th>
+            {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -47,6 +52,11 @@
                 <td>
                     {{ product.createdAt|date("m-d-Y") }}
                 </td>
+                {% if is_granted('ROLE_ADMIN') %}
+                <td>
+                    {{ product.user_id }}
+                </td>
+                {% endif %}
             </tr>
 
         {% endfor %}

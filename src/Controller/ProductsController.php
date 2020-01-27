@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
+use App\Service\Parser;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Omines\DataTablesBundle\Adapter\Doctrine\ORM\SearchCriteriaProvider;
@@ -27,7 +28,6 @@ use Faker\Provider\ru_RU\Internet;
 use Symfony\Component\Security\Core\User\UserInterface;
 use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 use Clue\React\Buzz\Browser;
-use Parser;
 
 class ProductsController extends AbstractController
 {
@@ -131,28 +131,23 @@ class ProductsController extends AbstractController
             $parser = new Parser($client);
             $product = $request->request->get('product');
             $parser->parse($product['url']);
-
             $loop->run();
-            print_r($parser->getData());
+            $parsed = $parser->getData();
+//            dd($parsed);
 
+            $post->setCreatedAt(new \DateTime());
+            $post->setName($parsed['title']);
+            $post->setPicture($parsed['picture']);
+            $post->setPrice($parsed['price']);
+            $post->setPrice_old('');
+            $post->setCurrency($parsed['currency']);
+            $post->setUser_id($user->getId());
 
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($post);
+            $em->flush();
 
-
-
-
-//            $post->setCreatedAt(new \DateTime());
-//            $post->setName($this->faker->sentence(3));
-//            $post->setPicture($this->faker->imageUrl());
-//            $post->setPrice($this->faker->randomFloat(2));
-//            $post->setPrice_old($this->faker->randomFloat(2));
-//            $post->setCurrency('Грн.');
-//            $post->setUser_id($user->getId());
-//
-//            $em = $this->getDoctrine()->getManager();
-//            $em->persist($post);
-//            $em->flush();
-//
-//            return $this->redirectToRoute('products');
+            return $this->redirectToRoute('products');
         }
         return $this->render('products/new.html.twig', [
             'form' => $form->createView()
@@ -168,10 +163,6 @@ class ProductsController extends AbstractController
     public function delete($id, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
-//        $em->remove($product);
-//        $em->flush();
-
-
         $product = $em->getRepository('App\Entity\Product')->findOneBy(['user_id' => $user->getId(), 'id' => $id]);
 
         if ($product != null){
