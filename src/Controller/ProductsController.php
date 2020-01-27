@@ -63,48 +63,6 @@ class ProductsController extends AbstractController
      */
     private $faker;
 
-//    /**
-//     * @Route("/products", name="products")
-//     * @param Request $request
-//     * @param DataTableFactory $dataTableFactory
-//     * @param UserInterface $user
-//     * @return JsonResponse|Response
-//     */
-//    public function showAction(Request $request, DataTableFactory $dataTableFactory, UserInterface $user)
-//    {
-//        $table = $dataTableFactory->create()
-//            ->add('url', TextColumn::class, ['label' => 'Название', 'className' => 'bold'])
-//            ->add('name', TextColumn::class, ['render' => '<strong>%s</strong>',])
-//            ->add('picture', TextColumn::class, ['render' => function($value, $context) {
-//                return sprintf('<img src="%s" height="50" alt="%s">', $value, $value);
-//            }])
-//            ->add('price', NumberColumn::class)
-//            ->add('created_at', DateTimeColumn::class, ['format' => 'd-m-Y'])
-//            ->add('id',  TextColumn::class, ['render' => function($value, $context) {
-//                return sprintf('<a href="products/%s/delete"><i class="fa fa-trash"></i></a>', $value);
-//            }])
-//            ->createAdapter(ORMAdapter::class, [
-//                'entity' => Product::class,
-//                'criteria' => [
-//                    function (QueryBuilder $builder) use ($user) {
-//                        $builder->andWhere($builder->expr()->like('product.user_id', ':id'))->setParameter('id', $user->getId());
-//                    },
-//                    new SearchCriteriaProvider(),
-//                ],
-//            ])
-//            ->handleRequest($request);
-//
-//        if ($table->isCallback()) {
-//            return $table->getResponse();
-//        }
-//
-//        $products = $this->productRepository->findAll();
-//
-//        return $this->render('products/index.html.twig', [
-//            'datatable' => $table,
-//            'products' => $products
-//        ]);
-//    }
 
     /**
      * @Route("/products/new", name="new_product")
@@ -163,7 +121,12 @@ class ProductsController extends AbstractController
     public function delete($id, UserInterface $user)
     {
         $em = $this->getDoctrine()->getManager();
-        $product = $em->getRepository('App\Entity\Product')->findOneBy(['user_id' => $user->getId(), 'id' => $id]);
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $product = $em->getRepository('App\Entity\Product')->findOneBy(['id' => $id]);
+        } else {
+            $product = $em->getRepository('App\Entity\Product')->findOneBy(['user_id' => $user->getId(), 'id' => $id]);
+        }
 
         if ($product != null){
             $em->remove($product);
