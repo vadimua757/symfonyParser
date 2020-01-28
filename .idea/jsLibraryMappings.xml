@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="PROJECT" libraries="{any-number, bootstrap, datatables, date-dd-MMM-yyyy, f217c14aeb}" />
+  </component>
+</project>

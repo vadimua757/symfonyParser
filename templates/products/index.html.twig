@@ -3,6 +3,7 @@
 {% block title %}Products{% endblock %}
 
 {% block body %}
+    <button><a href="{{ path('products_batch_update') }}">Update all</a></button>
     <table id="products" class="table table-bordered table-hover">
         <thead>
         <tr>
@@ -21,6 +22,9 @@
             <th>
                 Date add
             </th>
+            <th>
+                Date update
+            </th>
             {% if is_granted('ROLE_ADMIN') %}
             <th>
                 User
@@ -28,7 +32,7 @@
             {% endif %}
             {% if is_granted('ROLE_USER') %}
             <th>
-                Delete
+                Actions
             </th>
             {% endif %}
         </tr>
@@ -42,7 +46,7 @@
                     </a>
                 </td>
                 <td>
-                    {{ product.picture }}
+                    <img src="{{ product.picture }}" style="max-height: 80px;" alt="{{ product.name }}">
                 </td>
                 <td>
                     {% if product.price > product.price_old %}
@@ -55,7 +59,10 @@
                     {{ product.price_old }}&nbsp;{{ product.currency }}
                 </td>
                 <td>
-                    {{ product.createdAt|date("m-d-Y") }}
+                    {{ product.createdAt|date("d.m.Y") }}
+                </td>
+                <td>
+                    {{ product.updatedAt|date("d.m.Y H:i ") }}
                 </td>
                 {% if is_granted('ROLE_ADMIN') %}
                 <td>
@@ -64,7 +71,9 @@
                 {% endif %}
                 {% if is_granted('ROLE_USER') %}
                 <td>
-                    <a href="{{ path('products_delete', {'id': product.id}) }}" onclick="return confirm('are u sure?')">Delete</a>
+                    <i class="far fa-trash-alt"></i>
+                    <a href="{{ path('products_delete', {'id': product.id}) }}" onclick="return confirm('are u sure?')"><i class="fa fa-trash"></i></a>
+                    <a href="{{ path('products_update', {'id': product.id}) }}"><i class="fa fa-refresh"></i></a>
                 </td>
                 {% endif %}
             </tr>
@@ -89,7 +98,7 @@
              },
              columnDefs: [
                  { type: 'any-number', targets : [ 2, 3 ] },
-                 { type: 'date-dd-mmm-yyyy', targets: 4 }
+                 { type: 'date-dd.mmm.yyyy', targets: 4 }
              ]
          } );
      </script>

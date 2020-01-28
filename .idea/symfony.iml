@@ -139,5 +139,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="f217c14aeb" level="application" />
+    <orderEntry type="library" name="datatables" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="any-number" level="application" />
+    <orderEntry type="library" name="date-dd-MMM-yyyy" level="application" />
   </component>
 </module>

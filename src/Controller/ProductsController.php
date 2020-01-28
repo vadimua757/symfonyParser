@@ -6,25 +6,13 @@ use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
 use App\Service\Parser;
-use Doctrine\ORM\QueryBuilder;
 use Exception;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORM\SearchCriteriaProvider;
-use Omines\DataTablesBundle\Column\DateTimeColumn;
-use Omines\DataTablesBundle\Column\NumberColumn;
+use React\EventLoop\Factory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DomCrawler\Crawler;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Omines\DataTablesBundle\Adapter\ArrayAdapter;
-use Omines\DataTablesBundle\Column\TextColumn;
-use Omines\DataTablesBundle\DataTableFactory;
-use Omines\DataTablesBundle\Adapter\Doctrine\ORMAdapter;
-use Faker\Factory;
-use Faker\Generator;
-use Faker\Provider\ru_RU\Internet;
 use Symfony\Component\Security\Core\User\UserInterface;
 use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 use Clue\React\Buzz\Browser;
@@ -49,7 +37,6 @@ class ProductsController extends AbstractController
      */
     public function index(Breadcrumbs $breadcrumbs)
     {
-//        $breadcrumbs->addItem("Home", $this->get("router")->generate("products"));
         $breadcrumbs->addRouteItem("Products", "products");
         $breadcrumbs->prependRouteItem("Home", "site");
         $products = $this->productRepository->findAll();
@@ -58,11 +45,6 @@ class ProductsController extends AbstractController
             'breadcrumbs' => $breadcrumbs
         ]);
     }
-    /**
-     * @var Generator
-     */
-    private $faker;
-
 
     /**
      * @Route("/products/new", name="new_product")
@@ -74,11 +56,8 @@ class ProductsController extends AbstractController
      */
     public function addProduct(Request $request, UserInterface $user, Breadcrumbs $breadcrumbs)
     {
-        $loop = \React\EventLoop\Factory::create();
+        $loop = Factory::create();
         $client = new Browser($loop);
-
-        $this->faker = Factory::create();
-        $this->faker->addProvider(new Internet($this->faker));
 
         $post = new Product();
         $form = $this->createForm(ProductType::class, $post);
@@ -91,9 +70,9 @@ class ProductsController extends AbstractController
             $parser->parse($product['url']);
             $loop->run();
             $parsed = $parser->getData();
-//            dd($parsed);
 
             $post->setCreatedAt(new \DateTime());
+            $post->setUpdatedAt(new \DateTime());
             $post->setName($parsed['title']);
             $post->setPicture($parsed['picture']);
             $post->setPrice($parsed['price']);
@@ -132,6 +111,62 @@ class ProductsController extends AbstractController
             $em->remove($product);
             $em->flush();
         }
+        return $this->redirectToRoute('products');
+    }
+
+    /**
+     * @Route("/products{id}/update", name="products_update")
+     * @param $id
+     * @param UserInterface $user
+     * @return RedirectResponse|Response
+     * @throws Exception
+     */
+    public function update($id, UserInterface $user)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $product = $em->getRepository('App\Entity\Product')->findOneBy(['id' => $id]);
+        } else {
+            $product = $em->getRepository('App\Entity\Product')->findOneBy(['user_id' => $user->getId(), 'id' => $id]);
+        }
+
+        $loop = Factory::create();
+        $client = new Browser($loop);
+        $parser = new Parser($client);
+        $parser->parse($product->getUrl());
+        $loop->run();
+        $parsed = $parser->getData();
+
+        $product->setPrice_old($product->getPrice());
+        $product->setPrice($parsed['price']);
+        $product->setUpdatedAt(new \DateTime());
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($product);
+        $em->flush();
+
+        return $this->redirectToRoute('products');
+    }
+
+    /**
+     * @Route("/products/batch_update", name="products_batch_update")
+     * @param UserInterface $user
+     * @return RedirectResponse|Response
+     */
+    public function batchUpdate(UserInterface $user)
+    {
+        $products = $this->productRepository->findAll();
+
+        foreach ($products as $product) {
+            try {
+                $this->update($product->getId(), $user);
+            } catch (Exception $e) {
+                $this->addFlash('error', $e->getMessage());
+            }
+            sleep(2);
+        }
+
         return $this->redirectToRoute('products');
     }
 }

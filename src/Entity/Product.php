@@ -68,6 +68,12 @@ class Product extends \Symfony\Component\HttpFoundation\Request
      */
     private $created_at;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $updated_at;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -200,4 +206,21 @@ class Product extends \Symfony\Component\HttpFoundation\Request
     {
         $this->created_at = $created_at;
     }
+
+    /**
+     * @return DateTimeInterface
+     */
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updated_at;
+    }
+
+    /**
+     * @param \DateTimeInterface $updated_at
+     */
+    public function setUpdatedAt(\DateTimeInterface $updated_at): void
+    {
+        $this->updated_at = $updated_at;
+    }
+
 }
