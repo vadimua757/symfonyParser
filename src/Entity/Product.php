@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use DateTimeInterface;
-use Doctrine\DBAL\Types\DateType;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToOne;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  */
-class Product extends \Symfony\Component\HttpFoundation\Request
+class Product extends Request
 {
     /**
      * @ORM\Id()
@@ -31,7 +31,7 @@ class Product extends \Symfony\Component\HttpFoundation\Request
     private $name;
 
     /**
-     * @ORM\Column(type="text", nullable=false)
+     * @ORM\Column(type="string", nullable=false)
      */
     private $url;
 
@@ -194,19 +194,18 @@ class Product extends \Symfony\Component\HttpFoundation\Request
     /**
      * @return DateTimeInterface
      */
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->created_at;
     }
 
     /**
-     * @param \DateTimeInterface $created_at
+     * @param DateTimeInterface $created_at
      */
-    public function setCreatedAt(\DateTimeInterface $created_at): void
+    public function setCreatedAt(DateTimeInterface $created_at): void
     {
         $this->created_at = $created_at;
     }
-
     /**
      * @return DateTimeInterface
      */
@@ -216,9 +215,9 @@ class Product extends \Symfony\Component\HttpFoundation\Request
     }
 
     /**
-     * @param \DateTimeInterface $updated_at
+     * @param DateTimeInterface $updated_at
      */
-    public function setUpdatedAt(\DateTimeInterface $updated_at): void
+    public function setUpdatedAt(DateTimeInterface $updated_at): void
     {
         $this->updated_at = $updated_at;
     }

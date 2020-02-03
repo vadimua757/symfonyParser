@@ -6,6 +6,7 @@ use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
 use App\Service\Parser;
+use DateTime;
 use Exception;
 use React\EventLoop\Factory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,37 +33,25 @@ class ProductsController extends AbstractController
 
     /**
      * @Route("/products", name="products")
+     * @param Request $request
+     * @param UserInterface $user
      * @param Breadcrumbs $breadcrumbs
      * @return Response
+     * @throws Exception
      */
-    public function index(Breadcrumbs $breadcrumbs)
+    public function index(Request $request, UserInterface $user, Breadcrumbs $breadcrumbs)
     {
         $breadcrumbs->addRouteItem("Products", "products");
         $breadcrumbs->prependRouteItem("Home", "site");
         $products = $this->productRepository->findAll();
-        return $this->render('products/index.html.twig', [
-            'products' => $products,
-            'breadcrumbs' => $breadcrumbs
-        ]);
-    }
 
-    /**
-     * @Route("/products/new", name="new_product")
-     * @param Request $request
-     * @param UserInterface $user
-     * @param Breadcrumbs $breadcrumbs
-     * @return RedirectResponse|Response
-     * @throws Exception
-     */
-    public function addProduct(Request $request, UserInterface $user, Breadcrumbs $breadcrumbs)
-    {
+        //form for adding product
         $loop = Factory::create();
         $client = new Browser($loop);
 
         $post = new Product();
         $form = $this->createForm(ProductType::class, $post);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
 
             $parser = new Parser($client);
@@ -71,8 +60,8 @@ class ProductsController extends AbstractController
             $loop->run();
             $parsed = $parser->getData();
 
-            $post->setCreatedAt(new \DateTime());
-            $post->setUpdatedAt(new \DateTime());
+            $post->setCreatedAt(new DateTime());
+            $post->setUpdatedAt(new DateTime());
             $post->setName($parsed['title']);
             $post->setPicture($parsed['picture']);
             $post->setPrice($parsed['price']);
@@ -86,7 +75,10 @@ class ProductsController extends AbstractController
 
             return $this->redirectToRoute('products');
         }
-        return $this->render('products/new.html.twig', [
+
+        return $this->render('products/index.html.twig', [
+            'products' => $products,
+            'breadcrumbs' => $breadcrumbs,
             'form' => $form->createView()
         ]);
     }
@@ -140,7 +132,7 @@ class ProductsController extends AbstractController
 
         $product->setPrice_old($product->getPrice());
         $product->setPrice($parsed['price']);
-        $product->setUpdatedAt(new \DateTime());
+        $product->setUpdatedAt(new DateTime());
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($product);
