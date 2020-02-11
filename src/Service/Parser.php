@@ -39,6 +39,7 @@ class Parser
             [
                 'rozetka.com.ua',
                 'foxtrot.com.ua',
+                'avtoduma.ua',
             ];
 
         foreach ($sites as $site) {
@@ -55,6 +56,13 @@ class Parser
                             $picture = $crawler->filter('meta[itemprop="image"]')->first()->attr('content');
                             $price = (int) filter_var($crawler->filter('.price__relevant')->children('.numb')->text(), FILTER_SANITIZE_NUMBER_INT);
                             $currency = $crawler->filter('.price__relevant')->children('.currency')->text();
+                        break;
+                    case 'avtoduma.ua':
+                            $title = $crawler->filter('.name')->first()->text() . " " . $crawler->filter('.panel-title-text')->first()->text();
+                            $picture = 'none';
+                            $price = (int) filter_var($crawler->filter('.vprice.p_UAH')->text(), FILTER_SANITIZE_NUMBER_INT);
+                            $currency = 'грн';
+
                         break;
                 endswitch;
             }

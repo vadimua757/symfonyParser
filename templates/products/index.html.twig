@@ -53,6 +53,8 @@
                     <a href="{{ product.url }}" target="_blank">
                         {{ product.name }}
                     </a>
+                    &nbsp;
+                    <a href="{{ path('statistic', {'id': product.id}) }}"><i class="fa fa-bar-chart"></i></a>
                 </td>
                 <td>
                     <img src="{{ product.picture }}" style="max-height: 80px;" alt="{{ product.name }}">
@@ -80,7 +82,6 @@
                 {% endif %}
                 {% if is_granted('ROLE_USER') %}
                 <td>
-                    <i class="far fa-trash-alt"></i>
                     <a href="{{ path('products_delete', {'id': product.id}) }}" onclick="return confirm('are u sure?')"><i class="fa fa-trash"></i></a>
                     <a href="{{ path('products_update', {'id': product.id}) }}"><i class="fa fa-refresh"></i></a>
                 </td>

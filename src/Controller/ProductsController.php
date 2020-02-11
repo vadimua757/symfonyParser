@@ -17,6 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
 use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 use Clue\React\Buzz\Browser;
+use App\Controller\StatisticController;
 
 class ProductsController extends AbstractController
 {
@@ -25,8 +26,11 @@ class ProductsController extends AbstractController
      */
     private $productRepository;
 
-    /** @var ProductRepository $productRepository */
-    public function __construct(ProductRepository $productRepository)
+    /**
+     *
+     * @var ProductRepository $productRepository
+     */
+    public function __construct(ProductRepository $productRepository = null)
     {
         $this->productRepository = $productRepository;
     }
@@ -107,7 +111,7 @@ class ProductsController extends AbstractController
     }
 
     /**
-     * @Route("/products{id}/update", name="products_update")
+     * @Route("/products/{id}/update", name="products_update")
      * @param $id
      * @param UserInterface $user
      * @return RedirectResponse|Response
@@ -134,9 +138,18 @@ class ProductsController extends AbstractController
         $product->setPrice($parsed['price']);
         $product->setUpdatedAt(new DateTime());
 
-        $em = $this->getDoctrine()->getManager();
         $em->persist($product);
         $em->flush();
+
+
+        try {
+            $this->forward('App\Controller\StatisticController::update', [
+                'product'  => $product,
+                'price' => $parsed['price'],
+            ]);
+        } catch (Exception $exception){
+            $this->addFlash('alert', $exception->getMessage());
+        }
 
         return $this->redirectToRoute('products');
     }
@@ -146,19 +159,24 @@ class ProductsController extends AbstractController
      * @param UserInterface $user
      * @return RedirectResponse|Response
      */
-    public function batchUpdate(UserInterface $user)
+    public function batchUpdate(UserInterface $user = null)
     {
         $products = $this->productRepository->findAll();
 
+        $i = 0;
+        $time_start = microtime(true);
         foreach ($products as $product) {
             try {
                 $this->update($product->getId(), $user);
             } catch (Exception $e) {
                 $this->addFlash('error', $e->getMessage());
             }
-            sleep(2);
+            sleep(1);
+            $i++;
         }
-
+        $time_end = microtime(true);
+        $execution_time = round(($time_end - $time_start), 0);
+        $this->addFlash('success', "Updated $i products. Time spend: $execution_time seconds");
         return $this->redirectToRoute('products');
     }
 }

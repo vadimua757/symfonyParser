@@ -123,6 +123,12 @@
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
+    "laminas/laminas-json": {
+        "version": "3.1.2"
+    },
+    "laminas/laminas-zendframework-bridge": {
+        "version": "1.0.1"
+    },
     "mhujer/breadcrumbs-bundle": {
         "version": "1.5.2"
     },
@@ -131,6 +137,9 @@
     },
     "nikic/php-parser": {
         "version": "v4.3.0"
+    },
+    "ob/highcharts-bundle": {
+        "version": "1.8.x-dev"
     },
     "ocramius/package-versions": {
         "version": "1.4.2"
