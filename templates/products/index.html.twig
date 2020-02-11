@@ -77,7 +77,7 @@
                 </td>
                 {% if is_granted('ROLE_ADMIN') %}
                 <td>
-                    {{ product.user_id }}
+                    {{ product.user_id.email }}
                 </td>
                 {% endif %}
                 {% if is_granted('ROLE_USER') %}

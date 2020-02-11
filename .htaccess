@@ -1,0 +1,8 @@
+Options +FollowSymLinks -MultiViews
+# Turn mod_rewrite on
+RewriteEngine on
+
+RewriteCond %{HTTP_HOST} ^wotconsole.info$ [NC,OR]
+RewriteCond %{HTTP_HOST} ^www.wotconsole.info$
+RewriteCond %{REQUEST_URI} !public/
+RewriteRule (.*) /public/$1 [L]

@@ -57,9 +57,8 @@ class Product extends Request
 
 
     /**
-     * @ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\Column(type="integer")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $user_id;
 

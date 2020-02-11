@@ -12,7 +12,7 @@ use Twig\Error\LoaderError as Twig_Error_Loader;
 
 class Mailer
 {
-    public const FROM_ADDRESS = 'admin@admin.ua';
+    public const FROM_ADDRESS = 'noreply@wotconsole.info';
 
     /**
      * @var Swift_Mailer

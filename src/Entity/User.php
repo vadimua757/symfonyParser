@@ -28,8 +28,6 @@ class User implements UserInterface
      * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(type="integer")
      *
-     * @ORM\OneToMany(targetEntity="Product", mappedBy="user_id")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $id;
 

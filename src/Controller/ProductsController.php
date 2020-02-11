@@ -71,7 +71,7 @@ class ProductsController extends AbstractController
             $post->setPrice($parsed['price']);
             $post->setPrice_old('');
             $post->setCurrency($parsed['currency']);
-            $post->setUser_id($user->getId());
+            $post->setUser_id($user);
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($post);

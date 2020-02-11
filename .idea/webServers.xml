@@ -10,6 +10,14 @@
           <option name="port" value="21" />
         </fileTransfer>
       </webServer>
+      <webServer id="0db6460c-b005-4931-bd18-89ac6d12a15c" name="wotconsole.info" url="http://wotconsole.info">
+        <fileTransfer host="ftp.wotconsole.info" port="21" rootFolder="/public_html">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
     </option>
   </component>
 </project>
