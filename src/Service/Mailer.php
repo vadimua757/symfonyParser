@@ -9,10 +9,13 @@ use Swift_Mailer;
 use Swift_Message;
 use Twig\Environment as Twig_Environment;
 use Twig\Error\LoaderError as Twig_Error_Loader;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class Mailer
 {
     public const FROM_ADDRESS = 'noreply@wotconsole.info';
+    public const ADMIN_ADDRESS = 'vadimua757@gmail.com';
 
     /**
      * @var Swift_Mailer
@@ -38,8 +41,8 @@ class Mailer
      * @param User $user
      *
      * @throws Twig_Error_Loader
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function sendConfirmationMessage(User $user)
     {
@@ -52,6 +55,57 @@ class Mailer
             ->setSubject('Вы успешно прошли регистрацию!')
             ->setFrom(self::FROM_ADDRESS)
             ->setTo($user->getEmail())
+            ->setBody($messageBody, 'text/html');
+
+        $this->mailer->send($message);
+    }
+
+    /**
+     *
+     * @param $msg
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Twig_Error_Loader
+     */
+    public function sendParsedMessage($msg)
+    {
+        $messageBody = $this->twig->render('security/parsed.html.twig', [
+            'msg' => $msg
+        ]);
+
+        $message = new Swift_Message();
+        $message
+            ->setSubject('Товары обновлены')
+            ->setFrom(self::FROM_ADDRESS)
+            ->setTo(self::ADMIN_ADDRESS)
+            ->setBody($messageBody, 'text/html');
+
+        $this->mailer->send($message);
+    }
+
+    /**
+     *
+     * @param $user
+     * @param $product
+     * @param $price_old
+     * @param $price_new
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Twig_Error_Loader
+     */
+    public function sendChangePriceMessage($product, $price_old, $price_new, $user)
+    {
+        $messageBody = $this->twig->render('security/price.html.twig', [
+            'product' => $product,
+            'price_old' => $price_old,
+            'price_new' => $price_new
+        ]);
+
+        $message = new Swift_Message();
+        $message
+            ->setSubject('Изменилась цена')
+            ->setFrom(self::FROM_ADDRESS)
+            ->setTo($user)
             ->setBody($messageBody, 'text/html');
 
         $this->mailer->send($message);

@@ -10,6 +10,7 @@ use DateTime;
 use Exception;
 use React\EventLoop\Factory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -117,15 +118,11 @@ class ProductsController extends AbstractController
      * @return RedirectResponse|Response
      * @throws Exception
      */
-    public function update($id, UserInterface $user)
+    public function update($id)
     {
 
         $em = $this->getDoctrine()->getManager();
-        if ($this->isGranted('ROLE_ADMIN')) {
-            $product = $em->getRepository('App\Entity\Product')->findOneBy(['id' => $id]);
-        } else {
-            $product = $em->getRepository('App\Entity\Product')->findOneBy(['user_id' => $user->getId(), 'id' => $id]);
-        }
+        $product = $em->getRepository('App\Entity\Product')->findOneBy(['id' => $id]);
 
         $loop = Factory::create();
         $client = new Browser($loop);
@@ -156,18 +153,18 @@ class ProductsController extends AbstractController
 
     /**
      * @Route("/products/batch_update", name="products_batch_update")
-     * @param UserInterface $user
      * @return RedirectResponse|Response
      */
-    public function batchUpdate(UserInterface $user = null)
+    public function batchUpdate()
     {
-        $products = $this->productRepository->findAll();
+        $em = $this->getDoctrine()->getManager();
+        $products = $em->getRepository('App\Entity\Product')->findAll();
 
         $i = 0;
         $time_start = microtime(true);
         foreach ($products as $product) {
             try {
-                $this->update($product->getId(), $user);
+                $this->update($product->getId());
             } catch (Exception $e) {
                 $this->addFlash('error', $e->getMessage());
             }
