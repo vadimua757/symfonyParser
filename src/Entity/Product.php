@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -15,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
  */
-class Product extends Request
+class Product
 {
     /**
      * @ORM\Id()
@@ -32,6 +33,8 @@ class Product extends Request
 
     /**
      * @ORM\Column(type="string", nullable=false)
+     * @Assert\Unique
+     *
      */
     private $url;
 
@@ -57,12 +60,6 @@ class Product extends Request
 
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $user_id;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $created_at;
@@ -71,6 +68,23 @@ class Product extends Request
      * @ORM\Column(type="datetime")
      */
     private $updated_at;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\user", inversedBy="products")
+     */
+    private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Statistic", mappedBy="product", cascade={"remove"}, orphanRemoval=true)
+     * @ORM\JoinColumn(name="product_id", referencedColumnName="id",onDelete="CASCADE")
+     */
+    private $statistic;
+
+    public function __construct()
+    {
+        $this->user = new ArrayCollection();
+        $this->statistic = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -161,22 +175,6 @@ class Product extends Request
     /**
      * @return mixed
      */
-    public function getUser_id()
-    {
-        return $this->user_id;
-    }
-
-    /**
-     * @param mixed $user_id
-     */
-    public function setUser_id($user_id): void
-    {
-        $this->user_id = $user_id;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getCurrency()
     {
         return $this->currency;
@@ -219,6 +217,50 @@ class Product extends Request
     public function setUpdatedAt(DateTimeInterface $updated_at): void
     {
         $this->updated_at = $updated_at;
+    }
+
+    /**
+     * @return Collection|user[]
+     */
+    public function getUser(): Collection
+    {
+        return $this->user;
+    }
+
+    public function addUser(user $user): self
+    {
+        if (!$this->user->contains($user)) {
+            $this->user[] = $user;
+        }
+
+        return $this;
+    }
+
+    public function removeUser(user $user): self
+    {
+        if ($this->user->contains($user)) {
+            $this->user->removeElement($user);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Statistic[]
+     */
+
+    public function getStatistic(): Collection
+    {
+        return $this->statistic;
+    }
+
+    public function removeStatistic(Statistic $statistic): self
+    {
+        if ($this->user->contains($statistic)) {
+            $this->user->removeElement($statistic);
+        }
+
+        return $this;
     }
 
 }

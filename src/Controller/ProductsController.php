@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
+use App\Service\Mailer;
 use App\Service\Parser;
 use DateTime;
 use Exception;
@@ -26,14 +27,18 @@ class ProductsController extends AbstractController
      * @var ProductRepository
      */
     private $productRepository;
+    private $mailer;
 
     /**
      *
+     *
+     * @param Mailer $mailer
      * @var ProductRepository $productRepository
      */
-    public function __construct(ProductRepository $productRepository = null)
+    public function __construct(Mailer $mailer, ProductRepository $productRepository = null)
     {
         $this->productRepository = $productRepository;
+        $this->mailer = $mailer;
     }
 
     /**
@@ -48,7 +53,13 @@ class ProductsController extends AbstractController
     {
         $breadcrumbs->addRouteItem("Products", "products");
         $breadcrumbs->prependRouteItem("Home", "site");
-        $products = $this->productRepository->findAll();
+        $em = $this->getDoctrine()->getManager();
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $products = $em->getRepository('App\Entity\Product')->findAll();
+        } else {
+            $products = $em->getRepository('App\Entity\Product')->findOneBy(['user_id' => $user]);
+        }
 
         //form for adding product
         $loop = Factory::create();
@@ -65,6 +76,12 @@ class ProductsController extends AbstractController
             $loop->run();
             $parsed = $parser->getData();
 
+            if ($parsed['status'] == 0) {
+                $this->mailer->sendNewSite(($parsed['url']));
+                $this->addFlash('warning', 'Извините, но такой сайт мы еще не добавили в систему');
+                return $this->redirectToRoute('products');
+            }
+
             $post->setCreatedAt(new DateTime());
             $post->setUpdatedAt(new DateTime());
             $post->setName($parsed['title']);
@@ -74,7 +91,7 @@ class ProductsController extends AbstractController
             $post->setCurrency($parsed['currency']);
             $post->setUser_id($user);
 
-            $em = $this->getDoctrine()->getManager();
+
             $em->persist($post);
             $em->flush();
 
@@ -137,16 +154,6 @@ class ProductsController extends AbstractController
 
         $em->persist($product);
         $em->flush();
-
-
-        try {
-            $this->forward('App\Controller\StatisticController::update', [
-                'product'  => $product,
-                'price' => $parsed['price'],
-            ]);
-        } catch (Exception $exception){
-            $this->addFlash('alert', $exception->getMessage());
-        }
 
         return $this->redirectToRoute('products');
     }

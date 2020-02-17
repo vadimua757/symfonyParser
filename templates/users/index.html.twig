@@ -17,6 +17,9 @@
                 Enabled?
             </th>
             <th>
+                Products
+            </th>
+            <th>
                 del
             </th>
         </tr>
@@ -34,6 +37,9 @@
                 </td>
                 <td>
                     {{ user.enabled }}
+                </td>
+                <td>
+                    {{ user.products.count }}
                 </td>
                 <td>
                     {% if is_granted('ROLE_ADMIN') %}

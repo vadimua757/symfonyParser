@@ -77,7 +77,10 @@
                 </td>
                 {% if is_granted('ROLE_ADMIN') %}
                 <td>
-                    {{ product.user_id.email }}
+
+                    {% for user in product.user.toArray %}
+                    {{ user.email }}
+                    {% endfor %}
                 </td>
                 {% endif %}
                 {% if is_granted('ROLE_USER') %}

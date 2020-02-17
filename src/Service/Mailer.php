@@ -110,4 +110,28 @@ class Mailer
 
         $this->mailer->send($message);
     }
+
+    /**
+     *
+     * @param $url
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Twig_Error_Loader
+     */
+
+    public function sendNewSite($url)
+    {
+        $messageBody = $this->twig->render('security/site.html.twig', [
+            'url' => $url,
+        ]);
+
+        $message = new Swift_Message();
+        $message
+            ->setSubject('Попытка добавить товар с сайта, которого нет в настройках')
+            ->setFrom(self::FROM_ADDRESS)
+            ->setTo(self::ADMIN_ADDRESS)
+            ->setBody($messageBody, 'text/html');
+
+        $this->mailer->send($message);
+    }
 }

@@ -60,7 +60,7 @@ class Updater
 
                     $this->em->persist($statistic);
                     $this->em->flush();
-
+                } elseif ($price_old != $price_new){
                     try {
                         $this->mailer->sendChangePriceMessage($product->getName(), $price_old, $price_new, $user->getEmail());
                     } catch (LoaderError $e) {
@@ -70,7 +70,6 @@ class Updater
                     } catch (SyntaxError $e) {
                         return $e;
                     }
-
                 }
             } catch (\Exception $e) {
                 return $e->getMessage();

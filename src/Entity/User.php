@@ -75,10 +75,16 @@ class User implements UserInterface
      */
     private $enabled;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Product", mappedBy="user")
+     */
+    private $products;
+
     public function __construct()
     {
         $this->roles = [self::ROLE_USER];
         $this->enabled = false;
+        $this->products = new ArrayCollection();
     }
 
     /**
@@ -226,6 +232,34 @@ class User implements UserInterface
     public function setEnable(bool $enabled): self
     {
         $this->enabled = $enabled;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Product[]
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): self
+    {
+        if (!$this->products->contains($product)) {
+            $this->products[] = $product;
+            $product->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): self
+    {
+        if ($this->products->contains($product)) {
+            $this->products->removeElement($product);
+            $product->removeUser($this);
+        }
 
         return $this;
     }
