@@ -38,7 +38,7 @@ class User implements UserInterface
      * @Assert\NotBlank()
      * @Assert\Email()
      */
-    private $email;
+    public $email;
 
     /**
      * @var string

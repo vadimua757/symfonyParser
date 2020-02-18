@@ -33,7 +33,6 @@ class Product
 
     /**
      * @ORM\Column(type="string", nullable=false)
-     * @Assert\Unique
      *
      */
     private $url;
@@ -70,7 +69,7 @@ class Product
     private $updated_at;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\user", inversedBy="products")
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", inversedBy="products")
      */
     private $user;
 
@@ -206,7 +205,7 @@ class Product
     /**
      * @return DateTimeInterface
      */
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): ?DateTimeInterface
     {
         return $this->updated_at;
     }
@@ -220,14 +219,14 @@ class Product
     }
 
     /**
-     * @return Collection|user[]
+     * @return Collection|User[]
      */
     public function getUser(): Collection
     {
         return $this->user;
     }
 
-    public function addUser(user $user): self
+    public function addUser(User $user): self
     {
         if (!$this->user->contains($user)) {
             $this->user[] = $user;

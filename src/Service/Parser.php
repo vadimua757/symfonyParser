@@ -3,9 +3,9 @@
 namespace App\Service;
 
 use Clue\React\Buzz\Browser;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DomCrawler\Crawler;
-use function RingCentral\Psr7\uri_for;
 
 class Parser
 {
@@ -27,28 +27,9 @@ class Parser
     public function parse($url)
     {
         $this->client->get($url)->then(
-                function (ResponseInterface $response) use ($url) {
-                    if ((string) $response->getBody() != ""){
-                        $this->parsed = $this->extractFromHtml((string) $response->getBody(), $url);
-                    } elseif (file_get_contents($url) != "") {
-                        $this->parsed = $this->extractFromHtml((string) file_get_contents($url), $url);
-                    } else {
-                        // create curl resource
-                        $ch = curl_init();
-                        // set url
-                        curl_setopt($ch, CURLOPT_URL, $url);
-                        //return the transfer as a string
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($ch, CURLOPT_TIMEOUT, 2);
-                        curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
-                        // $output contains the output string
-                        $output = curl_exec($ch);
-                        // close curl resource to free up system resources
-                        curl_close($ch);
-                        dd($output);
-                        $this->parsed = $this->extractFromHtml((string) $output, $url);
-                    }
-                }
+            function (ResponseInterface $response) use ($url) {
+                $this->parsed = $this->extractFromHtml((string) $response->getBody(), $url);
+            }
         );
     }
 

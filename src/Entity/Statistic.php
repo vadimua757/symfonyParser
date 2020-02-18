@@ -17,7 +17,7 @@ class Statistic
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Product", inversedBy="statistic",)
      * @ORM\JoinColumn(nullable=false)
      */
     private $product;

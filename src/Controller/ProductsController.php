@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Entity\User;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
 use App\Service\Mailer;
@@ -58,7 +59,7 @@ class ProductsController extends AbstractController
         if ($this->isGranted('ROLE_ADMIN')) {
             $products = $em->getRepository('App\Entity\Product')->findAll();
         } else {
-            $products = $em->getRepository('App\Entity\Product')->findOneBy(['user_id' => $user]);
+            $products = $user->getProducts()->toArray();
         }
 
         //form for adding product
@@ -82,19 +83,26 @@ class ProductsController extends AbstractController
                 return $this->redirectToRoute('products');
             }
 
-            $post->setCreatedAt(new DateTime());
-            $post->setUpdatedAt(new DateTime());
-            $post->setName($parsed['title']);
-            $post->setPicture($parsed['picture']);
-            $post->setPrice($parsed['price']);
-            $post->setPrice_old('');
-            $post->setCurrency($parsed['currency']);
-            $post->setUser_id($user);
+            //check if product exist
+            $existing_product = $em->getRepository('App\Entity\Product')->findOneBy(['url' => $product['url']]);
+            if ($existing_product && $user == $existing_product->getUser()->current()){
+                $this->addFlash('danger', 'Извините, но этот товар уже есть у Вас в списке');
+                return $this->redirectToRoute('products');
+            } elseif ($existing_product) {
+                $this->addProduct($user, $existing_product);
+            } else{
+                $post->setCreatedAt(new DateTime());
+                $post->setUpdatedAt(new DateTime());
+                $post->setName($parsed['title']);
+                $post->setPicture($parsed['picture']);
+                $post->setPrice($parsed['price']);
+                $post->setPrice_old('');
+                $post->setCurrency($parsed['currency']);
+                $post->addUser($user);
 
-
-            $em->persist($post);
-            $em->flush();
-
+                $em->persist($post);
+                $em->flush();
+            }
             return $this->redirectToRoute('products');
         }
 
@@ -182,5 +190,24 @@ class ProductsController extends AbstractController
         $execution_time = round(($time_end - $time_start), 0);
         $this->addFlash('success', "Updated $i products. Time spend: $execution_time seconds");
         return $this->redirectToRoute('products');
+    }
+
+    /**
+     * Add product
+     *
+     * @param User $user
+     * @param Product $product
+     *
+     */
+    public function addProduct(User $user, Product $product)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $product->addUser($user);
+        $user->addProduct($product);
+
+        $em->persist($product);
+        $em->persist($user);
+        $em->flush();
     }
 }
