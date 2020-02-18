@@ -49,8 +49,9 @@ class Updater
                 $this->em->persist($product);
                 $this->em->flush();
 
-                $user = $product->getUser();
+                $users = $product->getUser()->toArray();
                 $statistic = $this->em->getRepository('App\Entity\Statistic')->findOneBy(['product' => $product]);
+
                 if (!$statistic || $price_old != $price_new) {
                     $statistic = new Statistic();
                     $statistic->setProduct($product);
@@ -60,14 +61,16 @@ class Updater
                     $this->em->persist($statistic);
                     $this->em->flush();
                 } elseif ($price_old != $price_new){
-                    try {
-                        $this->mailer->sendChangePriceMessage($product->getName(), $price_old, $price_new, $user->current()->email);
-                    } catch (LoaderError $e) {
-                        return $e;
-                    } catch (RuntimeError $e) {
-                        return $e;
-                    } catch (SyntaxError $e) {
-                        return $e;
+                    foreach ($users as $user) {
+                        try {
+                        $this->mailer->sendChangePriceMessage($product->getName(), $price_old, $price_new, $user->email);
+                        } catch (LoaderError $e) {
+                            return $e;
+                        } catch (RuntimeError $e) {
+                            return $e;
+                        } catch (SyntaxError $e) {
+                            return $e;
+                        }
                     }
                 }
             } catch (\Exception $e) {
