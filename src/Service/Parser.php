@@ -2,7 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Sites;
 use Clue\React\Buzz\Browser;
+use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\DomCrawler\Crawler;

@@ -25,6 +25,7 @@ $request = Request::createFromGlobals();
 try {
     $response = $kernel->handle($request);
 } catch (Exception $e) {
+    var_dump($e->getMessage());
 }
 $response->send();
 $kernel->terminate($request, $response);

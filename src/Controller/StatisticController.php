@@ -37,7 +37,6 @@ class StatisticController extends AbstractController
     public function index($id,Breadcrumbs $breadcrumbs)
     {
         $breadcrumbs->addRouteItem("Users", "users");
-        $breadcrumbs->prependRouteItem("Home", "site");
 
         $statistics = $this->statisticRepository->findBy(['product' => $id]);
 

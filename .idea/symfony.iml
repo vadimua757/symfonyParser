@@ -36,6 +36,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/mhujer/breadcrumbs-bundle" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/monolog/monolog" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/nikic/php-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/noxlogic/ratelimit-bundle" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ob/highcharts-bundle" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ocramius/package-versions" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/ocramius/proxy-manager" />

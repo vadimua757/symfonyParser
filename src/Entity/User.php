@@ -80,6 +80,11 @@ class User implements UserInterface
      */
     private $products;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Sites", mappedBy="user")
+     */
+    private $sites;
+
     public function __construct()
     {
         $this->roles = [self::ROLE_USER];
@@ -259,6 +264,34 @@ class User implements UserInterface
         if ($this->products->contains($product)) {
             $this->products->removeElement($product);
             $product->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Sites[]
+     */
+    public function getSites(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addSite(Sites $sites): self
+    {
+        if (!$this->products->contains($sites)) {
+            $this->products[] = $sites;
+            $sites->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSite(Sites $sites): self
+    {
+        if ($this->products->contains($sites)) {
+            $this->products->removeElement($sites);
+            $sites->removeUser($this);
         }
 
         return $this;

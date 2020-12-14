@@ -79,6 +79,33 @@ class Product
      */
     private $statistic;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Sites", cascade={"remove"})
+     * @ORM\JoinColumn(name="site_id", referencedColumnName="id",onDelete="CASCADE")
+     */
+    private $site;
+
+    /**
+     * @return mixed
+     */
+    public function getSite()
+    {
+        return $this->site;
+    }
+
+    /**
+     * @param mixed $site
+     */
+    public function setSite($site): void
+    {
+        $this->site = $site;
+    }
+
+    public function addSite(Sites $site)
+    {
+        $this->site = $site;
+    }
+
     public function __construct()
     {
         $this->user = new ArrayCollection();

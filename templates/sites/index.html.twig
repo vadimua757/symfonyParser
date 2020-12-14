@@ -1,0 +1,108 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sites{% endblock %}
+
+{% block body %}
+
+    <div class="flex-row">
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal">
+            Add
+        </button>
+    </div>
+
+    <table id="sites" class="table table-bordered table-hover">
+        <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+{#            {% if is_granted('ROLE_ADMIN') %}#}
+{#            <th>#}
+{#                User#}
+{#            </th>#}
+{#            {% endif %}#}
+            {% if is_granted('ROLE_USER') %}
+            <th>
+                Actions
+            </th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for site in sites %}
+            <tr>
+                <td>
+                    {{ site.name }}
+                </td>
+{#                {% if is_granted('ROLE_ADMIN') %}#}
+{#                <td>#}
+
+{#                    {% for user in site.user.toArray %}#}
+{#                    {{ user.email }}#}
+{#                        <br>#}
+{#                    {% endfor %}#}
+{#                </td>#}
+{#                {% endif %}#}
+                {% if is_granted('ROLE_USER') %}
+                <td>
+                    <a href="{{ path('sites_delete', {'id': site.id}) }}" onclick="return confirm('are u sure?')"><i class="fa fa-trash"></i></a>
+{#                    <a href="{{ path('sites_update', {'id': product.id}) }}"><i class="fa fa-refresh"></i></a>#}
+                </td>
+                {% endif %}
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="span4 offset2 cards">
+                        {{ form_start(form, { 'action': path('sites'), 'attr': { 'class': 'fos_user_profile_edit' } }) }}
+
+                        {{ form_widget(form) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <div>
+                        <input class="btn btn-success" type="submit" value="{{ 'Add'|trans }}" />
+                    </div>
+                </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Insert this at the end of your body element, but before the closing tag -->
+{#    <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>#}
+
+{% endblock %}
+ {% block javascripts %}
+     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.20/sorting/any-number.js"></script>
+     <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.20/sorting/date-dd-MMM-yyyy.js"></script>
+     <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+     <script>
+         $('#sites').DataTable( {
+             "language": {
+                 "url": "//cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
+             },
+             columnDefs: [
+                 { type: 'any-number', targets : [ 2, 3 ] },
+                 { type: 'date-dd.mmm.yyyy', targets: 4 }
+             ]
+         } );
+     </script>
+ {% endblock %}
+

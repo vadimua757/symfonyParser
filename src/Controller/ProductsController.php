@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\NovaPoshta;
 use App\Entity\Product;
+use App\Entity\Sites;
 use App\Entity\User;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
@@ -17,6 +19,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use WhiteOctober\BreadcrumbsBundle\Model\Breadcrumbs;
 use Clue\React\Buzz\Browser;
@@ -43,17 +46,16 @@ class ProductsController extends AbstractController
     }
 
     /**
-     * @Route("/products", name="products")
+     * @Route("/", name="products")
      * @param Request $request
      * @param UserInterface $user
      * @param Breadcrumbs $breadcrumbs
      * @return Response
      * @throws Exception
      */
-    public function index(Request $request, UserInterface $user, Breadcrumbs $breadcrumbs)
+    public function index(Request $request, UserInterface $user, Breadcrumbs $breadcrumbs, TokenStorageInterface $tokenStorage)
     {
         $breadcrumbs->addRouteItem("Products", "products");
-        $breadcrumbs->prependRouteItem("Home", "site");
         $em = $this->getDoctrine()->getManager();
 
         if ($this->isGranted('ROLE_ADMIN')) {
@@ -73,6 +75,15 @@ class ProductsController extends AbstractController
 
             $parser = new Parser($client);
             $product = $request->request->get('product');
+            $host = parse_url($product['url']);
+            $site = $em->getRepository('App\Entity\Sites')->findOneBy(['name' => $host['host']]);
+            if (!$site)
+            {
+                $site = new Sites();
+                $site->setName($host['host']);
+                $em->persist($site);
+                $em->flush();
+            }
             $parser->parse($product['url']);
             $loop->run();
             $parsed = $parser->getData();
@@ -96,9 +107,10 @@ class ProductsController extends AbstractController
                 $post->setName($parsed['title']);
                 $post->setPicture($parsed['picture']);
                 $post->setPrice($parsed['price']);
-                $post->setPrice_old('');
+                $post->setPrice_old(0);
                 $post->setCurrency($parsed['currency']);
                 $post->addUser($user);
+                $post->addSite($site);
 
                 $em->persist($post);
                 $em->flush();

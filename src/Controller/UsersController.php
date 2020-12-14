@@ -17,7 +17,6 @@ class UsersController extends AbstractController
      */
     private $userRepository;
 
-    /** @var UserRepository $userRepository */
     public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
@@ -31,7 +30,6 @@ class UsersController extends AbstractController
     public function index(Breadcrumbs $breadcrumbs)
     {
         $breadcrumbs->addRouteItem("Users", "users");
-        $breadcrumbs->prependRouteItem("Home", "site");
 
         $users = $this->userRepository->findAll();
         return $this->render('users/index.html.twig', [

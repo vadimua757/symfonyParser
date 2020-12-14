@@ -34,7 +34,7 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
          - { path: ^/users, roles: ROLE_ADMIN }
-         - { path: ^/products, roles: ROLE_USER }
+         - { path: ^/, roles: ROLE_USER }
     encoders:
         App\Entity\User: bcrypt
 

@@ -138,6 +138,9 @@
     "nikic/php-parser": {
         "version": "v4.3.0"
     },
+    "noxlogic/ratelimit-bundle": {
+        "version": "1.15.1"
+    },
     "ob/highcharts-bundle": {
         "version": "1.8.x-dev"
     },
